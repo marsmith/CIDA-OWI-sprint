@@ -144,27 +144,7 @@
               </ul>
             </li>
           </ul>
-
     </div>
-	
-	<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Welcome to the Mapper</h4>
-          </div>
-          <div class="modal-body">
-
-            <div class="tab-content" id="aboutTabsContent" style="padding-top: 10px;">
-              <div class="tab-pane fade active in" id="about">
-                <p>A simple interface using a leaflet geoJson layer to display data from <a href="http://waterwatch.usgs.gov/">USGS WaterWatch </a> </p>
-              </div>
-            </div>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
 
 	<div id="map">
 		<div class="infoBox">
@@ -239,31 +219,11 @@
 		layers: [baseMap, baseMapOverlay, nwisAGS_sw]
 	});
 	
-	//add HTML5 geolocation
+	//add HTML5 geolocation button
 	L.control.locate().addTo(map);
 	
-	//make sw sites active
+	//show initially loaded sites layer as active
 	$("#nwisAGS_sw").addClass('active');
-	
-/*  CLICK LISTENER
-	//Identifying Dynamic Map Service Features
-    map.on("click", function(e) {
-        nwisAGS_sw.identify(e.latlng, function(data) {
-		  console.log(data);
-          if(data.results.length > 0) {
-            //Popup text should be in html format.  Showing the Storm Name with the type
-            popupText =  "<b>" + (data.results[0].attributes.site_no + "<b></br><hr>" + data.results[0].attributes.site_name);
-
-            //Add Popup to the map when the mouse was clicked at
-            var popup = L.popup()
-              .setLatLng(e.latlng)
-              .setContent(popupText)
-              .openOn(map);
-          }
-        });
-	});
-*/
-	
 	
 	//show initial map zoom level
 	$( ".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
