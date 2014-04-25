@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>CIDA/OWI Sprint map</title>
+
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+	<link rel="stylesheet" href="css/leaflet.awesome-markers.css">
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="js/leaflet.awesome-markers.min.js"></script>
+	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="js/esri-leaflet.js"></script>
+	
+	<link rel="stylesheet" href="//rawgithub.com/domoritz/leaflet-locatecontrol/gh-pages/src/L.Control.Locate.css" />
+	<!--[if lt IE 9]>
+		<link rel="stylesheet" href="//rawgithub.com/domoritz/leaflet-locatecontrol/gh-pages/src/L.Control.Locate.ie.css"/>
+	<![endif]-->
+
+	<script src="//rawgithub.com/domoritz/leaflet-locatecontrol/gh-pages/src/L.Control.Locate.js" ></script>
+	
+	<style type="text/css">
+	
+	html, body, #map {
+	  height: 100%;
+	  width: 100%;
+
+	}
+	.dropdown {padding-right:8px;}
+	li:hover {cursor: pointer;}
+	body {padding-top: 60px;}
+	.navbar-brand {padding:12px 4px;}
+	.page-title {margin-top:12px;float:left;font-weight: bold;font-size: 25px;color: white;}
+	 hr{padding: 1px; margin: 1px;}
+	 #infoPanel {z-index:999;position:absolute;top:100px;}
+	 
+	 @media only screen and (max-device-width: 480px) {
+		 #infoPanel {display:none;}
+	 }
+	 
+	/* make all rounder borders square*/ 
+	* {
+	  -webkit-border-radius: 0 !important;
+		 -moz-border-radius: 0 !important;
+			  border-radius: 0 !important;
+	} 
+	
+	.leaflet-popup-content {
+		padding:4px;
+		margin:4px;
+	}
+	.table {
+		margin-bottom: 4px;
+	}
+	
+	/* mapzoom and latlong infobox */ 
+	.infoBox {  
+		position:absolute;
+		padding:4px;
+		top:10px;
+		left:50px;
+		width:110px;
+		height:40px;
+		z-index:999;
+		background-color:white;
+		opacity:0.8;
+		box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	 }
+	 
+	.latlng {
+		top:20px;
+	}
+		
+	</style>
+	
+	<!-- -------------------------------------------------------- -->
+    <!-- FOR SEARCH API -->
+    <!-- !!! FULL API WILL BE SINGLE SCRIPT REF ON PUBLIC SERVER -->
+    <link    rel="stylesheet"     href="http://nationalmap.gov/streamer/search_api/jquery-ui-1.10.4.custom.min.css"              /> <!-- custom ui widgit css -->
+    <!-- <script type="text/javascript" src="http://nationalmap.gov/streamer/search_api/jquery/jquery-1.11.0.min.js"          ></script> --> <!-- main js !!! ALREADY LOADED ABOVE -->
+    <script type="text/javascript" src="http://nationalmap.gov/streamer/search_api/jquery-ui-1.10.4.custom.min.js"></script> <!-- ui widgit js         -->
+    <script src="http://nationalmap.gov/streamer/search_api/search_api.js"></script>
+    <link rel="stylesheet" href="http://nationalmap.gov/streamer/search_api/search_api.css" />
+    <script type="text/javascript">
+        $(document).ready(function(){
+            search.init();
+            search.searchTopN = 100;
+            search.searchTimeoutSec = 5;
+            search.showResultFunc = function(resultObj) {
+				console.log(resultObj);
+				
+				L.marker([resultObj.y, resultObj.x]).addTo(map);
+				
+				var popup = L.popup({offset:L.point(0, -20)})
+					.setLatLng([resultObj.y, resultObj.x])
+					.setContent('<b>' + resultObj.nm + '</b></br><hr>' + resultObj.ca + '</br>' + resultObj.st + '</br>' + resultObj.ct + '</br>' + resultObj.x + ',' + resultObj.y + '</br>' + resultObj.z + '</br>')
+					.openOn(map);
+								
+
+				map.setView([resultObj.y, resultObj.x],10);
+				
+				L.control.locate().addTo(map);
+				
+				
+			/*
+                //    resultObj.nm    : name              : "Tree Mobile Home Park" <== point marker label on map
+                //    resultObj.ca    : category          : "Populated Place"
+                //    resultObj.st    : 2-char State code : "CA"
+                //    resultObj.ct    : County            : "Orange County"
+                //    resultObj.x     : geog. deciaml lon : -117.960891723633
+                //    resultObj.y     : geog. deciaml lat :   33.8577919006348
+                //    resultObj.z     : elevation         : "112.1234"
+                //    resultObj.pm    : percent match     : 86.1232
+                alert(
+                    "Hi Marty. Here is the info you need to put the point on the map:" + "\n" +
+                    "    resultObj.x = " + resultObj.x + "\n" +
+                    "    resultObj.y = " + resultObj.y + "\n" +
+                    "\n" +
+                    "    resultObj.z = " + resultObj.z + "\n" +
+                    "    resultObj.lb = " + resultObj.lb + "\n" +
+                    "    resultObj.nm = " + resultObj.nm + "\n" +
+                    "    resultObj.ca = " + resultObj.ca + "\n" +
+                    "    resultObj.st = " + resultObj.st + "\n" +
+                    "    resultObj.ct = " + resultObj.ct + "\n" +
+                    "    resultObj.pm = " + resultObj.pm + "\n" +
+                    "Have fun!"
+                );
+                //console.warn(resultObj);
+			*/
+            };
+        });
+    </script>
+    <!-- END FOR SEARCH API -->
+    <!-- -------------------------------------------------------- -->
+	
+  </head>
+
+  <body>
+  
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+
+        <div class="navbar-header">
+			<a class="navbar-brand" href="http://ny.water.usgs.gov"><img src="images/usgs-logo.png"> </a><span class="page-title hidden-xs">&nbsp; CIDA/OWI Sprint map</span>
+        </div>
+
+		<ul class="nav navbar-nav navbar-right">
+		
+		<!--
+			<li><a onclick="$('#infoPanel').toggle();">Legend</a></li>
+		-->
+		
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b>  Add sites</a>
+              <ul id="siteMenu" class="dropdown-menu">
+					<li role="presentation" class="dropdown-header">Surface water</li>
+					<li id="nwisAGS_sw" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisAGS_sw');" tabindex="-1" >ArcGIS Server</a></li>
+					<li id="nwisGeo_sw" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisGeo_sw');" tabindex="-1" >geoserver</a></li>
+					
+					<li role="presentation" class="dropdown-header">Groundwater</li>
+					<li id="nwisAGS_gw" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisAGS_gw');" tabindex="-1" >ArcGIS Server</a></li>
+					<li id="nwisGeo_gw" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisGeo_gw');" tabindex="-1" >geoserver</a></li>
+					
+					<li role="presentation" class="dropdown-header">Springs</li>
+					<li id="nwisAGS_sp" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisAGS_sp');" tabindex="-1" >ArcGIS Server</a></li>
+					<li id="nwisGeo_sp" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisGeo_sp');" tabindex="-1" >geoserver</a></li>
+					
+					<li role="presentation" class="dropdown-header">Atmospheric</li>
+					<li id="nwisAGS_at" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisAGS_at');" tabindex="-1" >ArcGIS Server</a></li>
+					<li id="nwisGeo_at" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisGeo_at');" tabindex="-1" >geoserver</a></li>
+					
+					<li role="presentation" class="dropdown-header">Other</li>
+					<li id="nwisAGS_ot" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisAGS_ot');" tabindex="-1" >ArcGIS Server</a></li>
+					<li id="nwisGeo_ot" role="presentation"><a role="menuitem" onclick="toggleLayer('nwisGeo_ot');" tabindex="-1" >geoserver</a></li>
+
+              </ul>
+            </li>
+          </ul>
+
+    </div>
+	
+	<div class="modal fade" id="aboutModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Welcome to the Mapper</h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="tab-content" id="aboutTabsContent" style="padding-top: 10px;">
+              <div class="tab-pane fade active in" id="about">
+                <p>A simple interface using a leaflet geoJson layer to display data from <a href="http://waterwatch.usgs.gov/">USGS WaterWatch </a> </p>
+              </div>
+            </div>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+	<div id="map">
+		<div class="infoBox">
+			<div class="mapZoom"></div> 
+			<div class="latlng"></div>   
+		</div>
+	</div>
+	
+    <script>
+
+	
+	//create basemap layer and add to map
+	var baseMap = L.tileLayer("http://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}", {
+			attribution : 'Copyright: &copy; 2013 Esri, DeLorme, NAVTEQ',
+			opacity: 0.7
+		});
+	var baseMapOverlay = L.tileLayer("http://nationalmap.gov/ArcGIS/rest/services/NationalAtlasHydroBaseMapForTerrain2/MapServer/tile/{z}/{y}/{x}", {
+			opacity: 0.7
+		});
+	
+	//set up nwis ArcGIS server layer
+	var nwisAGS_sw = L.esri.dynamicMapLayer("http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NWISMapper/nwisMapper/MapServer", {
+	  layers : [88]
+	});	
+	
+	var nwisGeo_sw = L.tileLayer.wms("http://130.11.177.190:8080/geoserver/gwc/service/wms", {
+		layers: 'nwis_mapper:sw_act',
+		format: 'image/png',
+		transparent: true,
+		version: '1.1.0',
+		tiled: true
+	});
+	
+	var nwisAGS_gw = L.esri.dynamicMapLayer("http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NWISMapper/nwisMapper/MapServer", {
+	  layers : [22]
+	});
+	
+	var nwisGeo_gw = L.tileLayer.wms("http://130.11.177.190:8080/geoserver/gwc/service/wms", {
+		layers: 'nwis_mapper:gw_act',
+		format: 'image/png',
+		transparent: true,
+		version: '1.1.0',
+		tiled:true
+	});
+
+	var nwisAGS_sp = L.esri.dynamicMapLayer("http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NWISMapper/nwisMapper/MapServer", {
+	  layers : [66]
+	});
+
+	var nwisAGS_at = L.esri.dynamicMapLayer("http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NWISMapper/nwisMapper/MapServer", {
+	  layers : [0]
+	});
+	
+	var nwisGeo_at = L.tileLayer.wms("http://130.11.177.190:8080/geoserver/gwc/service/wms", {
+		layers: 'nwis_mapper:at_act',
+		format: 'image/png',
+		transparent: true,
+		version: '1.1.0',
+		tiled:true
+	});
+
+	var nwisAGS_ot = L.esri.dynamicMapLayer("http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NWISMapper/nwisMapper/MapServer", {
+	  layers : [44]
+	});
+
+	//map setup
+	var map = L.map('map', {
+		center: new L.LatLng(39.8, -98.6),
+		zoom: 4,
+		maxZoom: 11,
+		crs:L.CRS.EPSG900913,
+		layers: [baseMap, baseMapOverlay, nwisGeo_sw]
+	});
+	
+	L.control.locate().addTo(map);
+	
+	//make sw sites active
+	$("#nwisGeo_sw").addClass('active');
+	
+/*  CLICK LISTENER
+	//Identifying Dynamic Map Service Features
+    map.on("click", function(e) {
+        nwisAGS_sw.identify(e.latlng, function(data) {
+		  console.log(data);
+          if(data.results.length > 0) {
+            //Popup text should be in html format.  Showing the Storm Name with the type
+            popupText =  "<b>" + (data.results[0].attributes.site_no + "<b></br><hr>" + data.results[0].attributes.site_name);
+
+            //Add Popup to the map when the mouse was clicked at
+            var popup = L.popup()
+              .setLatLng(e.latlng)
+              .setContent(popupText)
+              .openOn(map);
+          }
+        });
+	});
+*/
+	
+	
+	//show initial map zoom level
+	$( ".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
+	
+	//refresh sites on extent change
+	map.on('zoomend dragend', function(evt) {
+		$( ".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
+	
+	});
+	
+	//show mouse coordinates
+	map.on('mousemove', function(evt) {
+
+		$( ".latlng" ).html(evt.latlng.lng.toFixed(3) + ", " + evt.latlng.lat.toFixed(3));
+
+	});
+	
+	function toggleLayer(layer) {
+		$('#' + layer).toggleClass('active');	
+		console.log(layer);
+		
+		if ($('#' + layer).hasClass('active')) {
+			window[layer].addTo(map);
+		}
+		else {
+			map.removeLayer(window[layer]);
+		}
+	}
+	
+	
+	
+	</script>
+  </body>
+</html>
