@@ -8,15 +8,11 @@
     <meta name="author" content="">
     <title>CIDA/OWI Sprint map</title>
 
-	<link rel="stylesheet" href="css/bootstrap.min.css" />
-	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+	<link rel="stylesheet" href="http:////netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
-	<link rel="stylesheet" href="css/leaflet.awesome-markers.css">
-	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 	
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
 	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-	<script src="js/leaflet.awesome-markers.min.js"></script>
 	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script src="js/esri-leaflet.js"></script>
 	
@@ -34,6 +30,8 @@
 	  width: 100%;
 
 	}
+	
+	/* some custom css for bootstrap items */ 
 	.dropdown {padding-right:8px;}
 	li:hover {cursor: pointer;}
 	body {padding-top: 60px;}
@@ -42,11 +40,7 @@
 	 hr{padding: 1px; margin: 1px;}
 	 #infoPanel {z-index:999;position:absolute;top:100px;}
 	 
-	 @media only screen and (max-device-width: 480px) {
-		 #infoPanel {display:none;}
-	 }
-	 
-	/* make all rounder borders square*/ 
+	
 	* {
 	  -webkit-border-radius: 0 !important;
 		 -moz-border-radius: 0 !important;
@@ -56,9 +50,6 @@
 	.leaflet-popup-content {
 		padding:4px;
 		margin:4px;
-	}
-	.table {
-		margin-bottom: 4px;
 	}
 	
 	/* mapzoom and latlong infobox */ 
@@ -95,46 +86,19 @@
             search.searchTopN = 100;
             search.searchTimeoutSec = 5;
             search.showResultFunc = function(resultObj) {
-				console.log(resultObj);
 				
+				//add marker to map
 				L.marker([resultObj.y, resultObj.x]).addTo(map);
 				
+				//create popup
 				var popup = L.popup({offset:L.point(0, -20)})
 					.setLatLng([resultObj.y, resultObj.x])
 					.setContent('<b>' + resultObj.nm + '</b></br><hr>' + resultObj.ca + '</br>' + resultObj.st + '</br>' + resultObj.ct + '</br>' + resultObj.x + ',' + resultObj.y + '</br>' + resultObj.z + '</br>')
 					.openOn(map);
-								
 
+				//zoom to result
 				map.setView([resultObj.y, resultObj.x],10);
-				
-				L.control.locate().addTo(map);
-				
-				
-			/*
-                //    resultObj.nm    : name              : "Tree Mobile Home Park" <== point marker label on map
-                //    resultObj.ca    : category          : "Populated Place"
-                //    resultObj.st    : 2-char State code : "CA"
-                //    resultObj.ct    : County            : "Orange County"
-                //    resultObj.x     : geog. deciaml lon : -117.960891723633
-                //    resultObj.y     : geog. deciaml lat :   33.8577919006348
-                //    resultObj.z     : elevation         : "112.1234"
-                //    resultObj.pm    : percent match     : 86.1232
-                alert(
-                    "Hi Marty. Here is the info you need to put the point on the map:" + "\n" +
-                    "    resultObj.x = " + resultObj.x + "\n" +
-                    "    resultObj.y = " + resultObj.y + "\n" +
-                    "\n" +
-                    "    resultObj.z = " + resultObj.z + "\n" +
-                    "    resultObj.lb = " + resultObj.lb + "\n" +
-                    "    resultObj.nm = " + resultObj.nm + "\n" +
-                    "    resultObj.ca = " + resultObj.ca + "\n" +
-                    "    resultObj.st = " + resultObj.st + "\n" +
-                    "    resultObj.ct = " + resultObj.ct + "\n" +
-                    "    resultObj.pm = " + resultObj.pm + "\n" +
-                    "Have fun!"
-                );
-                //console.warn(resultObj);
-			*/
+		
             };
         });
     </script>
@@ -153,11 +117,7 @@
         </div>
 
 		<ul class="nav navbar-nav navbar-right">
-		
-		<!--
-			<li><a onclick="$('#infoPanel').toggle();">Legend</a></li>
-		-->
-		
+				
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b>  Add sites</a>
               <ul id="siteMenu" class="dropdown-menu">
@@ -225,7 +185,7 @@
 			opacity: 0.7
 		});
 	
-	//set up nwis ArcGIS server layer
+	//set up nwis layers
 	var nwisAGS_sw = L.esri.dynamicMapLayer("http://wimsharedlb-418672833.us-east-1.elb.amazonaws.com/arcgis/rest/services/NWISMapper/nwisMapper/MapServer", {
 	  layers : [88]
 	});	
@@ -276,13 +236,14 @@
 		zoom: 4,
 		maxZoom: 11,
 		crs:L.CRS.EPSG900913,
-		layers: [baseMap, baseMapOverlay, nwisGeo_sw]
+		layers: [baseMap, baseMapOverlay, nwisAGS_sw]
 	});
 	
+	//add HTML5 geolocation
 	L.control.locate().addTo(map);
 	
 	//make sw sites active
-	$("#nwisGeo_sw").addClass('active');
+	$("#nwisAGS_sw").addClass('active');
 	
 /*  CLICK LISTENER
 	//Identifying Dynamic Map Service Features
@@ -320,6 +281,8 @@
 
 	});
 	
+	
+	//dropdown layer toggle helper
 	function toggleLayer(layer) {
 		$('#' + layer).toggleClass('active');	
 		console.log(layer);
@@ -331,8 +294,6 @@
 			map.removeLayer(window[layer]);
 		}
 	}
-	
-	
 	
 	</script>
   </body>
